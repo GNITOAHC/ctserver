@@ -16,7 +16,6 @@ func New(uri string) *Database {
 	if err != nil {
 		panic(err)
 	}
-	defer pool.Close()
 
 	err = pool.Ping(context.Background())
 	if err != nil {
