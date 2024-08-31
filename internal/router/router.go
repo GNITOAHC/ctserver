@@ -2,14 +2,18 @@ package router
 
 import (
 	"ctserver/internal/config"
+	"ctserver/internal/database"
 	"net/http"
 )
 
 type Router struct {
+	db *database.Database
 }
 
 func New(c *config.Config) *Router {
-	return &Router{}
+	return &Router{
+		db: database.New(c.DatabaseURI),
+	}
 }
 
 func (r *Router) Routes() http.Handler {
