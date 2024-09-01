@@ -10,9 +10,10 @@ import (
 )
 
 type User struct {
-	Mail  string `json:"mail"`
-	Phone string `json:"phone,omitempty"`
-	OTP   string `json:"otp"`
+	Mail     string `json:"mail"`
+	UserName string `json:"username"`
+	Phone    string `json:"phone,omitempty"`
+	OTP      string `json:"otp"`
 }
 
 const OTPPeriod = 60
@@ -67,8 +68,25 @@ func (rr *Router) RegVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if u.Mail == "" || u.OTP == "" {
+	if u.Mail == "" || u.OTP == "" || u.UserName == "" {
 		http.Error(w, "Mail and OTP are required", http.StatusBadRequest)
+	}
+
+	if exist, err := rr.helper.CheckUserExist(u.Mail); err != nil || exist {
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			http.Error(w, "User already exists", http.StatusBadRequest)
+		}
+		return
+	}
+	if exist, err := rr.helper.CheckUsernameExist(u.UserName); err != nil || exist {
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			http.Error(w, "Username already used", http.StatusBadRequest)
+		}
+		return
 	}
 
 	// Verify OTP
@@ -88,7 +106,7 @@ func (rr *Router) RegVerify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Register user
-	err = rr.helper.RegisterUser(u.Mail, u.Phone)
+	err = rr.helper.RegisterUser(u.Mail, u.Phone, u.UserName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

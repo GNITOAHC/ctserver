@@ -14,6 +14,10 @@ func (h *Helper) CheckUserExist(mail string) (bool, error) {
 	return h.db.CheckUserExist(mail)
 }
 
-func (h *Helper) RegisterUser(mail, phone string) error {
-	return h.db.InsertUser(mail, phone)
+func (h *Helper) CheckUsernameExist(username string) (bool, error) {
+	return h.db.CheckUsernameExist(username)
+}
+
+func (h *Helper) RegisterUser(mail, phone, username string) error {
+	return h.db.InsertUser(mail, phone, username)
 }

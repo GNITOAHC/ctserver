@@ -1,5 +1,7 @@
 create table if not exists "user_t" (
     "mail" varchar(255) not null,
+    "username" varchar(255) not null unique,
+    "name" varchar(255),
     "phone" varchar(255),
     "created_at" date not null default now(),
     "plan" varchar(255) not null default 'free',
