@@ -6,13 +6,17 @@ import (
 )
 
 type Config struct {
-	Port        string
-	DatabaseURI string
-	SMTPFrom    string
-	SMTPPass    string
-	SMTPHost    string
-	SMTPPort    string
-	OTPSecret   string
+	Port             string
+	DatabaseURI      string
+	SMTPFrom         string
+	SMTPPass         string
+	SMTPHost         string
+	SMTPPort         string
+	OTPSecret        string
+	AuthDBURI        string
+	AuthDBName       string
+	AuthDBCollection string
+	JWTSecret        string
 
 	TestMail string // Testing Environment
 }
@@ -25,13 +29,17 @@ func New(envpaths ...string) (*Config, error) {
 	}
 
 	return &Config{
-		Port:        os.Getenv("PORT"),
-		DatabaseURI: os.Getenv("DATABASE_URI"),
-		SMTPFrom:    os.Getenv("SMTP_FROM"),
-		SMTPPass:    os.Getenv("SMTP_PASS"),
-		SMTPHost:    os.Getenv("SMTP_HOST"),
-		SMTPPort:    os.Getenv("SMTP_PORT"),
-		OTPSecret:   os.Getenv("OTP_SECRET"),
+		Port:             os.Getenv("PORT"),
+		DatabaseURI:      os.Getenv("DATABASE_URI"),
+		SMTPFrom:         os.Getenv("SMTP_FROM"),
+		SMTPPass:         os.Getenv("SMTP_PASS"),
+		SMTPHost:         os.Getenv("SMTP_HOST"),
+		SMTPPort:         os.Getenv("SMTP_PORT"),
+		OTPSecret:        os.Getenv("OTP_SECRET"),
+		AuthDBURI:        os.Getenv("AUTH_DB_URI"),
+		AuthDBName:       os.Getenv("AUTH_DB_NAME"),
+		AuthDBCollection: os.Getenv("AUTH_DB_COLLECTION"),
+		JWTSecret:        os.Getenv("JWT_SECRET"),
 
 		TestMail: os.Getenv("TEST_MAIL"), // Testing Environment
 	}, nil

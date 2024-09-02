@@ -21,3 +21,7 @@ func (h *Helper) CheckUsernameExist(username string) (bool, error) {
 func (h *Helper) RegisterUser(mail, phone, username string) error {
 	return h.db.InsertUser(mail, phone, username)
 }
+
+func (h *Helper) GetUsername(mail string) (string, error) {
+	return h.db.GetUsername(mail)
+}

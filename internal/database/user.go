@@ -30,3 +30,13 @@ func (db *Database) InsertUser(mail, phone, username string) error {
 	}
 	return nil
 }
+
+func (db *Database) GetUsername(mail string) (string, error) {
+	query := "select username from user_t where mail = $1;"
+	var username string
+	err := db.pool.QueryRow(context.Background(), query, mail).Scan(&username)
+	if err != nil {
+		return "", err
+	}
+	return username, nil
+}
