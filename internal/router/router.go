@@ -10,7 +10,7 @@ import (
 
 type Router struct {
 	helper *helper.Helper
-	mailer *mailer.Mailer
+	mailer mailer.Mailer
 	config *config.Config
 	cache  *cache.Cache[string, string]
 }

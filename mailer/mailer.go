@@ -14,8 +14,8 @@ type Mailer struct {
 	port string
 }
 
-func New(from, pass, host, port string) *Mailer {
-	return &Mailer{from: from, pass: pass, host: host, port: port}
+func New(from, pass, host, port string) Mailer {
+	return Mailer{from: from, pass: pass, host: host, port: port}
 }
 
 func (m *Mailer) Send(to, subject, content string) error {
