@@ -17,6 +17,7 @@ type Config struct {
 	AuthDBName       string
 	AuthDBCollection string
 	JWTSecret        string
+	BaseURL          string
 
 	TestMail string // Testing Environment
 }
@@ -40,6 +41,7 @@ func New(envpaths ...string) (*Config, error) {
 		AuthDBName:       os.Getenv("AUTH_DB_NAME"),
 		AuthDBCollection: os.Getenv("AUTH_DB_COLLECTION"),
 		JWTSecret:        os.Getenv("JWT_SECRET"),
+		BaseURL:          os.Getenv("BASE_URL"),
 
 		TestMail: os.Getenv("TEST_MAIL"), // Testing Environment
 	}, nil
