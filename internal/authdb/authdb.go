@@ -26,8 +26,23 @@ func New(uri, dbName, collectionName, jwtsecret string) *RefreshDB {
 		panic(err)
 	}
 	collection := client.Database(dbName).Collection(collectionName)
-	// err = newExpireIndex(collection) // Create index for expireAt field
+	err = newExpireIndex(collection) // Create index for expireAt field
+	if err != nil {
+		panic(err)
+	}
 	return &RefreshDB{c: collection}
+}
+
+func newExpireIndex(collection *mongo.Collection) error {
+	// Create index for expireAt field
+	_, err := collection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys:    bson.M{"expireAt": 1},
+		Options: options.Index().SetExpireAfterSeconds(0),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type Session struct {
