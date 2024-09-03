@@ -6,7 +6,9 @@ import (
 	"ctserver/internal/config"
 	"ctserver/internal/helper"
 	"ctserver/mailer"
+	"encoding/json"
 	"net/http"
+	"time"
 )
 
 type Router struct {
@@ -38,6 +40,42 @@ func (r *Router) Routes() http.Handler {
 	mux.HandleFunc("POST /register/verify", r.RegVerify)
 	mux.HandleFunc("POST /login", r.Login)
 	mux.HandleFunc("POST /login/verify", r.LoginVerify)
+	mux.HandleFunc("POST /shorten-url", r.UniversalShortenUrl)
 
 	return mux
+}
+
+func (rr *Router) UniversalShortenUrl(w http.ResponseWriter, r *http.Request) {
+	type ShortenedReq struct {
+		Source      string        `json:"source"`
+		CustomPath  string        `json:"customPath"`
+		ExpireAfter time.Duration `json:"expireAfter"`
+	}
+	var req ShortenedReq
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if req.Source == "" {
+		http.Error(w, "Source is required", http.StatusBadRequest)
+		return
+	}
+
+	// log.Print("req", req)
+	// log.Print(req.Source, req.CustomPath, req.ExpireAfter)
+
+	shortened, err := rr.helper.ShortenUrl(helper.Url{
+		Url:         req.Source,
+		Path:        req.CustomPath,
+		ExpireAfter: req.ExpireAfter,
+		Default:     true,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(rr.config.BaseURL + "/" + shortened)
 }

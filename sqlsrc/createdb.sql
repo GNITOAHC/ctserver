@@ -9,14 +9,22 @@ create table if not exists "user_t" (
 );
 
 create table if not exists "data_t" (
-    "user_mail" varchar(255),
+    "username" varchar(255),
     "id" uuid not null default uuid_generate_v4(),
-    "name" varchar(255) not null, -- Shortened name of the data
+    "path" varchar(255) not null, -- Path of the data
     "type" varchar(4) not null, -- "file", "url", "dir" or "text"
     "content" text not null, -- URL to file or redirection, or text content of dir or text
+    "description" varchar(255), -- Short description of the data
     "ancestor_id" uuid, -- parent id null for root
     "descendant_id" uuid[], -- child id, only for dir
     "created_at" timestamp with time zone not null default now(),
-    "expired_at" timestamp,
+    "expired_at" timestamp with time zone,
     primary key ("id")
 );
+
+create table if not exists "shortened_t" (
+    "data_id" uuid not null primary key,
+    "shortened" text not null unique
+);
+
+alter table "shortened_t" add foreign key ("data_id") references "data_t" ("id") on delete cascade;
