@@ -42,7 +42,9 @@ func (r *Router) Routes() http.Handler {
 	mux.HandleFunc("POST /login/verify", r.LoginVerify)
 	mux.HandleFunc("POST /shorten-url", r.UniversalShortenUrl)
 
-	return mux
+	wrapped := use(mux, middleware)
+
+	return wrapped
 }
 
 func (rr *Router) UniversalShortenUrl(w http.ResponseWriter, r *http.Request) {
