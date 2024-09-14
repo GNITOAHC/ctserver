@@ -7,7 +7,7 @@ import (
 	"github.com/pquerna/otp/totp"
 )
 
-// getOTP generates a new OTP for the given mail
+// genOTP generates a new OTP for the given mail
 func (rr *Router) genOTP(mail string) (string, error) {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "ctlink.com",
