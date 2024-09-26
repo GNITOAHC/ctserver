@@ -40,3 +40,12 @@ func (db *Database) GetUsername(mail string) (string, error) {
 	}
 	return username, nil
 }
+
+func (db *Database) RemoveUser(mail string) error {
+	query := "delete from user_t where mail = $1;"
+	_, err := db.pool.Exec(context.Background(), query, mail)
+	if err != nil {
+		return err
+	}
+	return nil
+}

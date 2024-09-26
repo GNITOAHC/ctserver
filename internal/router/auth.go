@@ -211,3 +211,27 @@ func (rr *Router) LoginVerify(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
+
+type Test struct {
+	Mail string `json:"mail"`
+}
+
+func (rr *Router) TestDelete(w http.ResponseWriter, r *http.Request) {
+	var t Test
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if t.Mail == "" {
+		http.Error(w, "Mail and OTP are required", http.StatusBadRequest)
+	}
+
+	err = rr.helper.RemoveUser(t.Mail)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte("User removed"))
+}

@@ -42,6 +42,9 @@ func (r *Router) Routes() http.Handler {
 	mux.HandleFunc("POST /login/verify", r.LoginVerify)
 	mux.HandleFunc("POST /shorten-url", r.UniversalShortenUrl)
 
+    // For testing
+    mux.HandleFunc("POST /test-delete", r.TestDelete)
+
 	wrapped := use(mux, middleware)
 
 	return wrapped

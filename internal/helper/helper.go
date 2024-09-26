@@ -29,6 +29,10 @@ func (h *Helper) GetUsername(mail string) (string, error) {
 	return h.db.GetUsername(mail)
 }
 
+func (h *Helper) RemoveUser(mail string) error {
+    return h.db.RemoveUser(mail)
+}
+
 type Url struct {
 	Username    string // username
 	Url         string // url: Url to shorten
