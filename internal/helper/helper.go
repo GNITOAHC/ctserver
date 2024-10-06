@@ -30,7 +30,7 @@ func (h *Helper) GetUsername(mail string) (string, error) {
 }
 
 func (h *Helper) RemoveUser(mail string) error {
-    return h.db.RemoveUser(mail)
+	return h.db.RemoveUser(mail)
 }
 
 type Url struct {

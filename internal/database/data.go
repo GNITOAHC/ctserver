@@ -9,7 +9,7 @@ import (
 type Data struct {
 	Username     string
 	Id           string
-	Path         string // Path of the data, should start with /
+	Path         string // Path of the data, should start with / if it's user's custom path
 	Type         string // "file", "url", "dir" or "text"
 	Content      string // Original URL for type "url", source url for type "file", or content of dir or text
 	Description  string // Short description of the data
