@@ -53,8 +53,8 @@ func (r *Router) Routes() http.Handler {
 func (rr *Router) UniversalShortenUrl(w http.ResponseWriter, r *http.Request) {
 	type ShortenedReq struct {
 		Source      string        `json:"source"`
-		CustomPath  string        `json:"customPath"`
-		ExpireAfter time.Duration `json:"expireAfter"`
+		CustomPath  string        `json:"customPath,omitempty"`
+		ExpireAfter time.Duration `json:"expireAfter,omitempty"`
 	}
 	var req ShortenedReq
 	err := json.NewDecoder(r.Body).Decode(&req)
