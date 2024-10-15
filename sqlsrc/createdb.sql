@@ -13,7 +13,7 @@ create table if not exists "data_t" (
     "id" uuid not null default uuid_generate_v4(),
     "path" varchar(255) not null, -- Path of the data
     "type" varchar(4) not null, -- "file", "url", "dir" or "text"
-    "content" text not null, -- URL to file or redirection, or text content of dir or text
+    "content" text not null, -- URL to file or redirection, directory's name or text content
     "description" varchar(255), -- Short description of the data
     "ancestor_id" uuid, -- parent id null for root
     "descendant_id" uuid[], -- child id, only for dir
