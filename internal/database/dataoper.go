@@ -6,30 +6,18 @@ import (
 	"time"
 )
 
-type Data struct {
-	Username     string
-	Id           string
-	Path         string // Path of the data, should start with / if it's user's custom path
-	Type         string // "file", "url", "dir" or "text"
-	Content      string // Original URL for type "url", source url for type "file", or content of dir or text
-	Description  string // Short description of the data
-	AncestorId   string
-	DescendantId []string
-	CreatedAt    time.Time
-	ExpiredAt    time.Time
-
-	Duration time.Duration
-}
-
-// NewUrlDefault creates a new shortened URL for the given data, require d.Content as original url
-// d.Path is the shortened path (optional), if set, should start with _
-func (db *Database) NewUrlDefault(d Data) (string, error) {
+// NewUrlDefault creates a new shortened URL for the given original url
+// custom is the custom shortened path (optional), if set, should start with _
+func (db *Database) NewUrlDefault(original, custom string, duration time.Duration) (string, error) {
 	// Check required fields
-	if d.Content == "" {
+	if original == "" {
 		return "", errors.New("content is required")
 	}
-	if d.Path == "" {
-		d.Path = "_" + generateShortened(d.Content)
+	if custom == "" {
+		custom = "_" + generateShortened(original)
+	}
+	if custom[0] != '_' {
+		custom = "_" + custom
 	}
 	query := `
 		with new_data as (insert into data_t (username, path, type, description, ancestor_id, content, expired_at) values ($1, $2, 'url', $3, $4, $5, $6) returning id),
@@ -37,6 +25,7 @@ func (db *Database) NewUrlDefault(d Data) (string, error) {
 		select shortened from insert_shortened;
 	`
 	var resultShortened string
+	var d DataTable
 	err := db.pool.QueryRow(context.Background(), query, d.Username, d.Path, d.Description, NullString(d.AncestorId), d.Content, ExpiredAt(d.Duration)).Scan(&resultShortened)
 	if err != nil {
 		return "", err
@@ -60,18 +49,20 @@ func (db *Database) GetUrlDefault(shortened string) (string, error) {
 	return originalUrl, nil
 }
 
-// NewUrlCustom creates a new shortened URL for the given data, require d.Path, d.Content and d.Username
+// NewData creates a column for the given data, require d.Path, d.Content and d.Username
 // d.Path should start with /, so is the returned string
-func (db *Database) NewUrlCustom(d Data) (string, error) {
+func (db *Database) NewData(d DataTable) (string, error) {
 	// Check required fields
 	if d.Path == "" || d.Content == "" || d.Username == "" {
 		return "", errors.New("path, content and username are required")
 	}
 	query := `
-		insert into data_t (username, path, type, description, ancestor_id, content, expired_at) values ($1, $2, 'url', $3, $4, $5, $6) returning path;
+		insert into data_t (username, path, type, description, ancestor_id, content, expired_at) values ($1, $2, $3, $4, $5, $6, $7) returning path;
 	`
 	var resultPath string
-	err := db.pool.QueryRow(context.Background(), query, d.Username, d.Path, d.Description, NullString(d.AncestorId), d.Content, ExpiredAt(d.Duration)).Scan(&resultPath)
+	err := db.pool.QueryRow(context.Background(), query,
+		d.Username, d.Path, d.Type, d.Description, NullString(d.AncestorId), d.Content, ExpiredAt(d.Duration),
+	).Scan(&resultPath)
 	if err != nil {
 		return "", err
 	}
@@ -79,7 +70,7 @@ func (db *Database) NewUrlCustom(d Data) (string, error) {
 }
 
 // Return the original url for the given username and path
-func (db *Database) GetUrlCustom(username, path string) (string, error) {
+func (db *Database) GetData(username, path string) (string, error) {
 	query := `
 		select d.content
 		from data_t d
@@ -91,4 +82,24 @@ func (db *Database) GetUrlCustom(username, path string) (string, error) {
 		return "", err
 	}
 	return content, nil
+}
+
+func (db *Database) GetChildren(username, path string) ([]DataTable, error) {
+	query := `
+        select (id, type, content, description) from data_t where ancestor_id = (select id from data_t where username = $1 and path = $2 and type = 'dir');
+    `
+	var result []DataTable
+	rows, err := db.pool.Query(context.Background(), query, username, path)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var d DataTable
+		err := rows.Scan(&d.Id, &d.Type, &d.Content, &d.Description)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, d)
+	}
+	return result, nil
 }

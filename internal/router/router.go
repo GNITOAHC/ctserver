@@ -42,8 +42,8 @@ func (r *Router) Routes() http.Handler {
 	mux.HandleFunc("POST /login/verify", r.LoginVerify)
 	mux.HandleFunc("POST /shorten-url", r.UniversalShortenUrl)
 
-    // For testing
-    mux.HandleFunc("POST /test-delete", r.TestDelete)
+	// For testing
+	mux.HandleFunc("POST /test-delete", r.TestDelete)
 
 	wrapped := use(mux, middleware)
 
@@ -68,15 +68,7 @@ func (rr *Router) UniversalShortenUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// log.Print("req", req)
-	// log.Print(req.Source, req.CustomPath, req.ExpireAfter)
-
-	shortened, err := rr.helper.ShortenUrl(helper.Url{
-		Url:         req.Source,
-		Path:        req.CustomPath,
-		ExpireAfter: req.ExpireAfter,
-		Default:     true,
-	})
+	shortened, err := rr.helper.ShortenUrl(req.Source, req.CustomPath, req.ExpireAfter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
